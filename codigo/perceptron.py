@@ -5,7 +5,7 @@ import math
 import random
 import array
 
-# random.seed(a = 123)
+random.seed(a = 123)
 
 
 class PerceptronError(Exception):
@@ -60,7 +60,8 @@ class Perceptron:
 
     @weights.setter
     def weights(self, weights):
-        if len(weights) != self.__n_inputs + 1:
+        if len(weights) != self.__n_inputs + 1: # Implica agregar manualmente
+                                                # el weight del bias.
             raise PerceptronError("Dimensión de weights distinto al número "
                                                                 "de entradas.")
         self.__weights = weights
@@ -84,7 +85,8 @@ class Perceptron:
 
     def output(self, inputs):
         if len(inputs) != self.__n_inputs:
-            raise PerceptronError("Dimensión de inputs distinto al número de entradas.")
+            raise PerceptronError("Dimensión de inputs distinto al número de "
+                                                                "entradas.")
         self.__inputs  = (1, ) + tuple(inputs) # Agrega siempre 1 al bias.
 
         try:
@@ -96,6 +98,7 @@ class Perceptron:
         return self.__output
 
     def derivative(self, x):
+        """Retorna la derivada de activacion en x."""
         return self.__class__.DERIVATIVES[self.__activation](x)
 
     def __repr__(self):
@@ -127,7 +130,6 @@ if __name__ == '__main__':
         [0],
         [1]
     ]
-
 
     learning_rate = 0.5   # Tasa de aprendizaje.
     epochs        = 10000 # Máximo número de épocas.

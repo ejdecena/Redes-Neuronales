@@ -54,6 +54,8 @@ class Layer:
         self.__is_compiled = True
 
     def output(self, inputs):
+        """Retorna la salida de la capa."""
+
         if not self.__is_compiled:
             raise LayerError("La capa aún no está compilada.")
 

@@ -2,10 +2,13 @@
 """Implementa un Perceptron Multicapa."""
 
 import math
+import random
 from layer import Layer
 
 
 class MLPError(Exception):
+    """Gestiona las excepciones de la clase MLP."""
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -13,7 +16,7 @@ class MLPError(Exception):
 class MLP:
 
     def __init__(self, epochs, error_tol, learning_rate = 0.5,
-                                          momentum_rate = 0.5):
+                                    momentum_rate = 0.5, random_state = None):
         self.__epochs        = epochs
         self.__error_tol     = error_tol
         self.__learning_rate = learning_rate
@@ -33,11 +36,13 @@ class MLP:
         # Chequeo coincidencia de input/output.
         for i in range(len(self.__layers) - 1):
             if self.__layers[i].n_perceptrons != self.__layers[i + 1].n_inputs:
-                raise MLPError("Las entradas y salidas de las capas no coinciden.")
+                raise MLPError("Las entradas y salidas de las capas no "
+                                                                "coinciden.")
 
         self.__is_compiled = True
 
     def output(self, inputs):
+        """Retorna la salida de la red."""
         for layer in self.__layers:
             layer_output = layer.output(inputs)
             inputs       = layer_output
@@ -72,8 +77,10 @@ class MLP:
                                 * po.get_output
                                 * p.delta
                                 for weight, po
-                                in zip(p.weights[1:],
+                                in zip(p.weights,
                                             self.__layers[c - 0].perceptrons)])
+                print(p)
+                print(weights)
                 p.weights = weights
        
     def train(self, X, y):
@@ -87,10 +94,10 @@ class MLP:
         if len(X[0]) != self.__layers[0].n_inputs:
             raise MLPError("La dimensión del input "
                             "y la dimensión de la primera capa no coinciden.")
-        e     = 0
+        epoch     = 0
         error = 1
-        while e < self.__epochs and math.fabs(error) > self.__error_tol:
-            print("epoch:", e)
+        while epoch < self.__epochs and math.fabs(error) > self.__error_tol:
+            print("epoch:", epoch)
             for i, row in enumerate(X):
                 yhat = self.output(row)
                 if len(yhat) != len(y[i]):
@@ -103,7 +110,7 @@ class MLP:
                 error = sum([s**2 for s in errors]) / 2
                 print("error:", error)
 
-            e += 1
+            epoch += 1
 
     def __repr__(self):
         metadata = "MLP(epochs={}, error_tol={}, learning_rate={})".format(
@@ -120,6 +127,19 @@ class MLP:
 if __name__ == '__main__':
     # Testing ...
 
+    ann = MLP(epochs=1000, error_tol=0.01, learning_rate=0.2,
+              momentum_rate=0.5, random_state=123)
+
+    l1 = Layer(n_inputs=2, n_perceptrons=2, activation="sigmoid")
+    l2 = Layer(n_inputs=2, n_perceptrons=2, activation="sigmoid")
+    l3 = Layer(n_inputs=2, n_perceptrons=1, activation="relu")
+
+    ann.add_layer(l1)
+    ann.add_layer(l2)
+    ann.add_layer(l3)
+    ann.compile()
+
+    # Tabla XOR:
     X = [[0, 0],
          [1, 0],
          [0, 1],
@@ -137,18 +157,6 @@ if __name__ == '__main__':
     #     [0,1],
     #     [1,0]
     # ]
-
-    ann = MLP(epochs=1000, error_tol=0.01, learning_rate=0.2,
-                                        momentum_rate=0.5)
-
-    l1 = Layer(n_inputs=2, n_perceptrons=1, activation="sigmoid")
-    l2 = Layer(n_inputs=1, n_perceptrons=1, activation="sigmoid")
-    l3 = Layer(n_inputs=1, n_perceptrons=1, activation="relu")
-
-    ann.add_layer(l1)
-    # ann.add_layer(l2)
-    ann.add_layer(l3)
-    ann.compile()
 
     ann.train(X, y)
 
