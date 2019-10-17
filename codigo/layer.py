@@ -5,16 +5,17 @@ from perceptron import Perceptron
 
 
 class LayerError(Exception):
+    """Gestiona las excepciones de la clase Layer."""
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
 
 class Layer:
 
-    def __init__(self, n_inputs, n_perceptrons, activation="sigmoid"):
+    def __init__(self, n_inputs, n_perceptrons, activation = "sigmoid"):
         self.__n_inputs      = n_inputs
-        self.__activation    = activation
         self.__n_perceptrons = n_perceptrons
+        self.__activation    = activation
         self.__perceptrons   = list()
         self.__is_compiled   = False
 
@@ -40,8 +41,7 @@ class Layer:
 
     def add_perceptron(self, perceptron):
         if not isinstance(perceptron, Perceptron):
-            raise LayerError("El parámetro proveído no es un objeto" 
-                                                                " Perceptron.")
+            raise LayerError("El parámetro no es un objeto Perceptron.")
         self.__perceptrons.append(perceptron)
 
     def compile(self):
@@ -56,6 +56,9 @@ class Layer:
     def output(self, inputs):
         if not self.__is_compiled:
             raise LayerError("La capa aún no está compilada.")
+
+        if len(inputs) != self.__n_inputs:
+            raise LayerError("Dimensión de inputs distinta de n_inputs.")
 
         outputs = list()
         for perceptron in self.__perceptrons:
@@ -78,17 +81,17 @@ class Layer:
 if __name__ == '__main__':
     # Testing ...
 
-    X = [[0, 0],
-         [1, 0],
-         [0, 1],
-         [1, 1]
-        ]
-
     l1 = Layer(n_inputs = 2, n_perceptrons = 4, activation = "sigmoid")
     l2 = Layer(n_inputs = 4, n_perceptrons = 3, activation = "relu")
 
     l1.compile()
     l2.compile()
+
+    X = [[0, 0],
+         [1, 0],
+         [0, 1],
+         [1, 1]
+        ]
 
     for row in X:
         l2_input = l1.output(row)
