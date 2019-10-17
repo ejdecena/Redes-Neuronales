@@ -1,5 +1,5 @@
 <div align = "center">
-    <img src = "imagenes/logo_redes_neuronales_2.png" width = "180" height = "70" />
+    <img src = "imagenes/logo_redes_neuronales.png" width = "180" height = "70" />
 </div>
 
 # Redes Neuronales.
@@ -24,7 +24,7 @@
     <table style = "border:hidden;" border = 0>
         <tbody>
             <tr>
-                <td><a href="">Guía 0:</a></td>
+                <td><a href="/">Guía 0:</a></td>
                 <td>Objetivo General. Objetivos Específicos. Metodología. Contenido Programático.</td>
             </tr>
         </tbody>
