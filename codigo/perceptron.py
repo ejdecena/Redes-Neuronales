@@ -9,7 +9,7 @@ import array
 
 
 class PerceptronError(Exception):
-    """Clase que gestuona las excepciones de la clase Perceptron."""
+    """Gestiona las excepciones de la clase Perceptron."""
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -61,7 +61,8 @@ class Perceptron:
     @weights.setter
     def weights(self, weights):
         if len(weights) != self.__n_inputs + 1:
-            raise PerceptronError("Dimensión de deltas distinto al número de entradas.")
+            raise PerceptronError("Dimensión de weights distinto al número "
+                                                                "de entradas.")
         self.__weights = weights
 
     @property
@@ -78,6 +79,7 @@ class Perceptron:
 
     @property
     def get_output(self):
+        """Retorna el output más reciente (el último)."""
         return self.__output
 
     def output(self, inputs):
@@ -110,6 +112,9 @@ class Perceptron:
 if __name__ == '__main__':
     # Testing ...
 
+    neuron = Perceptron(n_inputs = 2, activation = "relu")
+    print(neuron, end = "\n")
+
     # X para el operador AND.
     X = [[0, 0],
          [1, 0],
@@ -123,15 +128,13 @@ if __name__ == '__main__':
         [1]
     ]
 
-    neuron = Perceptron(n_inputs = 2, activation = "relu")
-    print(neuron, end = "\n")
 
-    learning_rate = 0.5
-    epochs        = 10000
-    error_tol     = 0.001
+    learning_rate = 0.5   # Tasa de aprendizaje.
+    epochs        = 10000 # Máximo número de épocas.
 
-    epoch = 0
-    error = 1
+    epoch     = 0
+    error     = 1
+    error_tol = 0.001
     while epoch < epochs and math.fabs(error) > error_tol:
         for i, row in enumerate(X):
             error  = neuron.output(row) - y[i][0]
