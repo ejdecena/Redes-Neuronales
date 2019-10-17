@@ -5,8 +5,12 @@ import math
 import random
 import array
 
+# random.seed(a = 123)
+
 
 class PerceptronError(Exception):
+    """Clase que gestuona las excepciones de la clase Perceptron."""
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -31,13 +35,12 @@ class Perceptron:
     }
 
     def __init__(self, n_inputs, activation = "sigmoid"):
-
         self.__n_inputs   = n_inputs
         self.__activation = activation
         self.__inputs     = array.array("d", (0.0 for i 
                                                 in range(self.__n_inputs + 1)))
-        self.__weights    = array.array("d", (random.uniform(0, 1) 
-                                              * (1 / math.sqrt(n_inputs + 1))
+        self.__weights    = array.array("d", (random.gauss(mu = 0, sigma = 1) 
+                                              * (2 / math.sqrt(n_inputs + 1))
                                             for i in range(self.__n_inputs + 1)
                                         ))
         self.__output     = None
@@ -107,7 +110,7 @@ class Perceptron:
 if __name__ == '__main__':
     # Testing ...
 
-    # X for AND operator.
+    # X para el operador AND.
     X = [[0, 0],
          [1, 0],
          [0, 1],
@@ -120,16 +123,16 @@ if __name__ == '__main__':
         [1]
     ]
 
-    neuron = Perceptron(2, activation="step")
+    neuron = Perceptron(n_inputs = 2, activation = "relu")
     print(neuron, end = "\n")
 
     learning_rate = 0.5
-    epochs        = 10000 # 5
+    epochs        = 10000
     error_tol     = 0.001
 
-    e     = 0
+    epoch = 0
     error = 1
-    while e < epochs and math.fabs(error) > error_tol:
+    while epoch < epochs and math.fabs(error) > error_tol:
         for i, row in enumerate(X):
             error  = neuron.output(row) - y[i][0]
             deltas = list()
@@ -139,7 +142,7 @@ if __name__ == '__main__':
 
             neuron.weights = [weight - delta
                             for weight, delta in zip(neuron.weights, deltas)]
-        e += 1
+        epoch += 1
 
     print("\nPredictions:")
     print("0 ADD 0:", neuron.output(X[0]))
@@ -147,7 +150,7 @@ if __name__ == '__main__':
     print("0 ADD 1:", neuron.output(X[2]))
     print("1 ADD 1:", neuron.output(X[3]))
     print("Weights:", neuron.weights)
-    print("Iterations:", e)
+    print("Iterations:", epoch)
     print("Error:", error)
 
     print("\n", neuron)
