@@ -6,7 +6,7 @@
 
 *Redes Neuronales* es un repositorio que sirve de apoyo a la asignatura de *Redes Neuronales*.
 
-<img src="https://img.shields.io/badge/License-MIT-green" /> <img src="https://img.shields.io/badge/Python-3.5-blue" />
+<a href="https://nbviewer.jupyter.org/github/ejdecena/redes_neuronales/tree/master/"><img src="https://img.shields.io/badge/Visualizar-NBViewer-orange"/></a> <img src="https://img.shields.io/badge/License-MIT-green" /> <img src="https://img.shields.io/badge/Python-3.5-blue" />
 
 ## Desarrollador.
 
