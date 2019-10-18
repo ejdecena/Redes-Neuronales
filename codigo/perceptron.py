@@ -17,42 +17,29 @@ class PerceptronError(Exception):
 
 class Perceptron:
 
-    # Funciones de activación disponibles.
-    ACTIVATIONS = {
-            "sigmoid": lambda x: 1 / (1 + math.exp(-x)),
-            "tanh"   : lambda x: (math.exp(x) - math.exp(-x)) \
-                                 / (math.exp(x) + math.exp(-x)),
-            "relu"   : lambda x: x if x >= 0 else 0,
-            "step"   : lambda x: 1 if x >= 0 else 0
-    }
-
-    # Derivadas de las funciones de activación.
-    DERIVATIVES = {
-            "sigmoid": lambda x: Perceptron.ACTIVATIONS["sigmoid"](x)
-                                * (1 - Perceptron.ACTIVATIONS["sigmoid"](x)),
-            "tanh"   : lambda x: 1 - (Perceptron.ACTIVATIONS["tanh"](x))**2,
-            "relu"   : lambda x: 1
-    }
-
-    def __init__(self, n_inputs, activation = "sigmoid"):
-        self.__n_inputs   = n_inputs
-        self.__activation = activation
-        self.__inputs     = array.array("d", (0.0 for i 
-                                                in range(self.__n_inputs + 1)))
-        self.__weights    = array.array("d", (random.gauss(mu = 0, sigma = 1) 
-                                              * (2 / math.sqrt(n_inputs + 1))
-                                            for i in range(self.__n_inputs + 1)
-                                        ))
-        self.__output     = None
-        self.__delta      = None
+    def __init__(self, inputs_size, activation):
+        self.__inputs_size = inputs_size
+        self.__activation  = activation
+        self.__inputs      = array.array("d", (0.0 for i 
+                                                in range(self.__inputs_size)))
+        self.__weights     = array.array("d",
+                (random.gauss(mu = 0, sigma = 1) * (2 / math.sqrt(inputs_size))
+                                           for i in range(self.__inputs_size)))
+        self.__bias        = random.gauss(mu = 0, sigma = 1)
+        self.__output      = None
+        self.__delta       = None
 
     @property
-    def n_inputs(self):
-        return self.__n_inputs
-
+    def activation(self):
+        return self.__activation
+    
     @property
-    def inputs(self):
-        return self.__inputs
+    def bias(self):
+        return self.__bias
+
+    @bias.setter
+    def bias(self, bias):
+        self.__bias = bias
 
     @property
     def weights(self):
@@ -60,8 +47,7 @@ class Perceptron:
 
     @weights.setter
     def weights(self, weights):
-        if len(weights) != self.__n_inputs + 1: # Implica agregar manualmente
-                                                # el weight del bias.
+        if len(weights) != self.__inputs_size:
             raise PerceptronError("Dimensión de weights distinto al número "
                                                                 "de entradas.")
         self.__weights = weights
@@ -76,7 +62,9 @@ class Perceptron:
 
     @property
     def potential(self):
-        return sum((i * w for i, w in zip(self.__inputs, self.__weights)))
+        return sum((i * w
+                    for i, w in zip(self.__inputs, self.__weights))) \
+                    + self.__bias
 
     @property
     def get_output(self):
@@ -84,29 +72,28 @@ class Perceptron:
         return self.__output
 
     def output(self, inputs):
-        if len(inputs) != self.__n_inputs:
+        if len(inputs) != self.__inputs_size:
             raise PerceptronError("Dimensión de inputs distinto al número de "
                                                                 "entradas.")
-        self.__inputs  = (1, ) + tuple(inputs) # Agrega siempre 1 al bias.
-
+        self.__inputs = inputs
         try:
-            self.__output = self.__class__.ACTIVATIONS[self.__activation]\
-                                                    (self.potential)
+            self.__output = self.__activation(self.potential)
         except KeyError:
             raise PerceptronError("La función de activación '{}' no existe.".\
-                format(self.__activation))
+                format(self.__activation.__name__))
         return self.__output
 
     def derivative(self, x):
         """Retorna la derivada de activacion en x."""
-        return self.__class__.DERIVATIVES[self.__activation](x)
+        return self.__activation.derivative(x)
 
     def __repr__(self):
-        metadata = "Perceptron(n_inputs={}, activation={})".format(
-                                            self.__n_inputs, self.__activation)
+        metadata = "Perceptron(inputs_size={}, activation={})".format(
+                                self.__inputs_size, self.__activation.__name__)
         metadata += "\n   Delta: " + repr(self.__delta)
         metadata += "\n   Inputs: " + repr(self.__inputs)
         metadata += "\n   Weights: " + repr(self.__weights)
+        metadata += "\n   Bias: " + repr(self.__bias)
         metadata += "\n   Potential: " + repr(self.potential)
         metadata += "\n   Output: " + repr(self.__output)
         return metadata
@@ -115,7 +102,9 @@ class Perceptron:
 if __name__ == '__main__':
     # Testing ...
 
-    neuron = Perceptron(n_inputs = 2, activation = "relu")
+    import activations
+
+    neuron = Perceptron(inputs_size = 2, activation = activations.relu)
     print(neuron, end = "\n")
 
     # X para el operador AND.
@@ -131,17 +120,19 @@ if __name__ == '__main__':
         [1]
     ]
 
-    learning_rate = 0.5   # Tasa de aprendizaje.
-    epochs        = 10000 # Máximo número de épocas.
+    learning_rate = 0.5 # Tasa de aprendizaje.
+    epochs        = 1000 # Máximo número de épocas.
 
     epoch     = 0
     error     = 1
     error_tol = 0.001
     while epoch < epochs and math.fabs(error) > error_tol:
         for i, row in enumerate(X):
-            error  = neuron.output(row) - y[i][0]
+            error          = neuron.output(row) - y[i][0]
+            # neuron.weights = [weight - learning_rate * error
+            #                  for weight in neuron.weights]
+            neuron.bias    = neuron.bias - learning_rate * error
             deltas = list()
-            deltas.append(error * learning_rate * 1) # Agrega el peso del bias 
             for x in row:
                 deltas.append(error * learning_rate * x)
 

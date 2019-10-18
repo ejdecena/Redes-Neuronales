@@ -12,16 +12,16 @@ class LayerError(Exception):
 
 class Layer:
 
-    def __init__(self, n_inputs, n_perceptrons, activation = "sigmoid"):
-        self.__n_inputs      = n_inputs
+    def __init__(self, inputs_size, n_perceptrons, activation = "sigmoid"):
+        self.__inputs_size   = inputs_size
         self.__n_perceptrons = n_perceptrons
         self.__activation    = activation
         self.__perceptrons   = list()
         self.__is_compiled   = False
 
     @property
-    def n_inputs(self):
-        return self.__n_inputs
+    def inputs_size(self):
+        return self.__inputs_size
 
     @property
     def activation(self):
@@ -47,7 +47,7 @@ class Layer:
     def compile(self):
         """Instancia y agrega los perceptrones a la capa."""
         for i in range(self.__n_perceptrons - len(self.__perceptrons)):
-            p = Perceptron(n_inputs=self.__n_inputs,
+            p = Perceptron(inputs_size=self.__inputs_size,
                             activation=self.__activation)
             self.__perceptrons.append(p)
 
@@ -59,8 +59,8 @@ class Layer:
         if not self.__is_compiled:
             raise LayerError("La capa aún no está compilada.")
 
-        if len(inputs) != self.__n_inputs:
-            raise LayerError("Dimensión de inputs distinta de n_inputs.")
+        if len(inputs) != self.__inputs_size:
+            raise LayerError("Dimensión de inputs distinta de inputs_size.")
 
         outputs = list()
         for perceptron in self.__perceptrons:
@@ -68,8 +68,8 @@ class Layer:
         return tuple(outputs)
 
     def __repr__(self):
-        metadata = "Layer(n_inputs={}, n_perceptrons={}, activation={},".\
-                            format(self.__n_inputs, self.__n_perceptrons,
+        metadata = "Layer(inputs_size={}, n_perceptrons={}, activation={},".\
+                            format(self.__inputs_size, self.__n_perceptrons,
                                     self.__activation)
         for percep in self.__perceptrons:
             metadata += "\n" + repr(percep)
@@ -83,8 +83,13 @@ class Layer:
 if __name__ == '__main__':
     # Testing ...
 
-    l1 = Layer(n_inputs = 2, n_perceptrons = 4, activation = "sigmoid")
-    l2 = Layer(n_inputs = 4, n_perceptrons = 3, activation = "relu")
+    import activations
+
+    l1 = Layer(inputs_size = 2, n_perceptrons = 4,
+                activation = activations.sigmoid)
+
+    l2 = Layer(inputs_size = 4, n_perceptrons = 3,
+                activation = activations.relu)
 
     l1.compile()
     l2.compile()
